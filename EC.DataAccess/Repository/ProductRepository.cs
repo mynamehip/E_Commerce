@@ -20,7 +20,23 @@ namespace EC.DataAccess.Repository
 
         public void Update(Product obj)
         {
-            _db.Products.Update(obj);
+            var product = _db.Products.FirstOrDefault(p => p.Id == obj.Id);
+            if (product != null)
+            {
+                product.Title = obj.Title;
+                product.Description = obj.Description;
+                product.CategoryId = obj.CategoryId;
+                product.Price = obj.Price;
+                product.ListPrice = obj.ListPrice;
+                product.Price50 = obj.Price50;
+                product.Price100 = obj.Price100;
+                product.Author = obj.Author;
+                product.ISBN = obj.ISBN;
+                if(obj.ImageUrl != null)
+                {
+                    product.ImageUrl = obj.ImageUrl;
+                }
+            }
         }
     }
 }

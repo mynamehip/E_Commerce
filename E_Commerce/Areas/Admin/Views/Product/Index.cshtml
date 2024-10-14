@@ -6,37 +6,44 @@
             <h2>Product List</h2>
         </div>
         <div class="col-6 px-0 text-end">
-            <a class="btn btn-primary" asp-controller="Product" asp-action="Create">
-                <i class="bi bi-plus-circle"></i> Create new
+            <a class="btn btn-primary" asp-controller="Product" asp-action="Upsert">
+                <i class="bi bi-plus-circle"></i> Create new product
             </a>
         </div>
     </div>
     <div class="row">
-        <table class="table table-bordered table-striped">
+        <table id="tblData" class="table table-bordered table-striped" width="100%">
             <thead>
                 <tr>
                     <th>Title</th>
                     <th>ISBN</th>
                     <th>Author</th>
                     <th>Category</th>
-                    <th>ListPrice</th>
                     <th>Price</th>
                     <th></th>
                 </tr>
             </thead>
-            <tbody>
+            
+        </table>
+    </div>
+</div>
+
+@section Scripts{
+    <script src="~/js/product.js"></script>
+}
+
+@* <tbody>
                 @foreach (var obj in Model)
                 {
                     <tr>
                         <td>@obj.Title</td>
                         <td>@obj.ISBN</td>
                         <td>@obj.Author</td>
-                        <td></td>
-                        <td>@obj.ListPrice</td>
+                        <td>@obj.Category.Name</td>
                         <td>@obj.Price</td>
                         <td>
                             <div class="btn-group" role="group">
-                                <a asp-controller="Product" asp-action="Update" asp-route-id="@obj.Id" class="btn btn-info mx-1">
+                                <a asp-controller="Product" asp-action="Upsert" asp-route-id="@obj.Id" class="btn btn-info mx-1">
                                     <i class="bi bi-pencil-square"></i> Edit
                                 </a>
                                 <a asp-controller="Product" asp-action="Remove" asp-route-id="@obj.Id" class="btn btn-danger mx-1">
@@ -46,8 +53,4 @@
                         </td>
                     </tr>
                 }
-            </tbody>
-        </table>
-    </div>
-</div>
-
+            </tbody> *@
