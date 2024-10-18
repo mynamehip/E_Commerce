@@ -1,0 +1,32 @@
+﻿@model List<Company>
+
+<div class="container">
+    <div class="row pb-3 pt-3">
+        <div class="col-6 px-0">
+            <h2>Company List</h2>
+        </div>
+        <div class="col-6 px-0 text-end">
+            <a class="btn btn-primary" asp-controller="Company" asp-action="Upsert">
+                <i class="bi bi-plus-circle"></i> Create new Company
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <table id="tblData" class="table table-bordered table-striped" width="100%">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Address</th>
+                    <th>City</th>
+                    <th>State</th>
+                    <th>Phone Number</th>
+                    <th></th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+@section Scripts{
+    <script src="~/js/company.js"></script>
+}

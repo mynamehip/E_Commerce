@@ -10,6 +10,11 @@ namespace EC.DataAccess.Repository.IRepository
     {
         ICategoryRepository CategoryRepository { get; }
         IProductRepository ProductRepository { get; }
+        ICompanyRepository CompanyRepository { get; }
+        IApplicationUserRepository ApplicationUserRepository { get; }
+        IShoppingCartRepository ShoppingCartRepository { get; }
+        IOrderDetailRepository OrderDetailRepository { get; }
+        IOrderHeaderRepository OrderHeaderRepository { get; }
         void Save();
     }
 }

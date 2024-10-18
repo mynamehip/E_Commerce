@@ -2,6 +2,8 @@
 using EC.DataAccess.Repository.IRepository;
 using EC.Models.Models;
 using EC.Models.ViewModels;
+using EC.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
@@ -9,6 +11,7 @@ using System.Collections.Generic;
 namespace E_Commerce.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = SD.Role_User_Admin)]
     public class ProductController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;

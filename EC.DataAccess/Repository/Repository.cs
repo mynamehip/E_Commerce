@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using EC.DataAccess.Data;
 using EC.DataAccess.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace EC.DataAccess.Repository
 {
@@ -24,23 +25,37 @@ namespace EC.DataAccess.Repository
             dbSet.Add(entity);
         }
 
-        public T Get(System.Linq.Expressions.Expression<Func<T, bool>> filter, string? includeProperties = null)
+        public T Get(System.Linq.Expressions.Expression<Func<T, bool>> filter, string? includeProperties = null, bool tracked = false)
         {
-            IQueryable<T> querry = dbSet;
-            querry = querry.Where(filter);
+            IQueryable<T> query;
+            if (tracked)
+            {
+                query = dbSet;
+
+            }
+            else
+            {
+                query = dbSet.AsNoTracking();
+            }
+            query = query.Where(filter);
             if (!string.IsNullOrEmpty(includeProperties))
             {
-                foreach (var property in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                foreach (var includeProp in includeProperties
+                    .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    querry = querry.Include(property);
+                    query = query.Include(includeProp);
                 }
             }
-            return querry.FirstOrDefault();
+            return query.FirstOrDefault();
         }
 
-        public IEnumerable<T> GetAll(string? includeProperties = null)
+        public IEnumerable<T> GetAll(System.Linq.Expressions.Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
         {
             IQueryable<T> querry = dbSet;
+            if(filter != null)
+            {
+                querry = querry.Where(filter);
+            }
             if (!string.IsNullOrEmpty(includeProperties))
             {
                 foreach (var property in includeProperties.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries))
