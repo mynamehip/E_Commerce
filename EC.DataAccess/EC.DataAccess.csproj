@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EC.Models\EC.Models.csproj" />
+    <ProjectReference Include="..\EC.Utility\EC.Utility.csproj" />
   </ItemGroup>
 
 </Project>

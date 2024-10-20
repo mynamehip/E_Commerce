@@ -32,10 +32,7 @@ namespace EC.DataAccess.Repository
                 product.Price100 = obj.Price100;
                 product.Author = obj.Author;
                 product.ISBN = obj.ISBN;
-                if(obj.ImageUrl != null)
-                {
-                    product.ImageUrl = obj.ImageUrl;
-                }
+                product.ProductImages = obj.ProductImages;
             }
         }
     }

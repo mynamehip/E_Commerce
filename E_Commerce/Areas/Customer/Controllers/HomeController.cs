@@ -22,7 +22,17 @@ namespace E_Commerce.Areas.Customer.Controllers
 
         public IActionResult Index()
         {
-            List<Product> products = _unitOfWork.ProductRepository.GetAll(includeProperties: "Category").ToList();
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claimId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            if (claimId == null)
+            {
+                HttpContext.Session.SetInt32(SD.SessionCart, 0);
+            }
+            else
+            {
+                HttpContext.Session.SetInt32(SD.SessionCart, _unitOfWork.ShoppingCartRepository.GetAll(u => u.ApplicationUserId == claimId.Value).Count());
+            }
+            IEnumerable<Product> products = _unitOfWork.ProductRepository.GetAll(includeProperties: "Category,ProductImages");
             return View(products);
         }
 
@@ -30,7 +40,7 @@ namespace E_Commerce.Areas.Customer.Controllers
         {
             ShoppingCart cart = new ShoppingCart()
             {
-                Product = _unitOfWork.ProductRepository.Get(u => u.Id == productId, includeProperties: "Category"),
+                Product = _unitOfWork.ProductRepository.Get(u => u.Id == productId, includeProperties: "Category,ProductImages"),
                 Count = 1,
                 ProductId = productId
             };
@@ -59,8 +69,7 @@ namespace E_Commerce.Areas.Customer.Controllers
                 //add cart record
                 _unitOfWork.ShoppingCartRepository.Add(shoppingCart);
                 _unitOfWork.Save();
-                HttpContext.Session.SetInt32(SD.SessionCart,
-                _unitOfWork.ShoppingCartRepository.GetAll(u => u.ApplicationUserId == userId).Count());
+                HttpContext.Session.SetInt32(SD.SessionCart, _unitOfWork.ShoppingCartRepository.GetAll(u => u.ApplicationUserId == userId).Count());
             }
             TempData["success"] = "Cart updated successfully";
             return RedirectToAction(nameof(Index));

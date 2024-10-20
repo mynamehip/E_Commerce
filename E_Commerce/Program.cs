@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using EC.Utility;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using EC.DataAccess.DbInitialize;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,12 @@ builder.Services.ConfigureApplicationCookie(options => {
     options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
 });
 
+builder.Services.AddAuthentication().AddFacebook(options =>
+{
+    options.AppId = "1410445619912522";
+    options.AppSecret = "e39eec5d679498e18b57771198b05c1c";
+});
+
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
@@ -32,6 +39,7 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
+builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 
 var app = builder.Build();
 
@@ -52,9 +60,20 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseSession();
 
+SeedDatabase();
+
 app.MapRazorPages();
 app.MapControllerRoute(
     name: "default",
     pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+void SeedDatabase()
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbInitalizer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+        dbInitalizer.Initialize();
+    }
+}

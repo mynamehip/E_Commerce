@@ -32,11 +32,14 @@ namespace E_Commerce.Areas.Customer.Controllers
             {
                 ShoppingCartList = _unitOfWork.ShoppingCartRepository.GetAll(u => u.ApplicationUserId == userId,
                 includeProperties: "Product"),
-                OrderHeader = new OrderHeader()
+                OrderHeader = new()
             };
+
+            IEnumerable<ProductImage> productImages = _unitOfWork.ProductImageRepository.GetAll();
 
             foreach (var cart in ShoppingCartVM.ShoppingCartList)
             {
+                cart.Product.ProductImages = productImages.Where(u => u.ProductId == cart.Product.Id).ToList();
                 cart.Price = GetPriceBasedOnQuantity(cart);
                 ShoppingCartVM.OrderHeader.OrderTotal += (cart.Price * cart.Count);
             }
@@ -80,8 +83,7 @@ namespace E_Commerce.Areas.Customer.Controllers
                 //remove that from cart
                 _unitOfWork.ShoppingCartRepository.Remove(cartFromDb);
 
-                //HttpContext.Session.SetInt32(SD.SessionCart,  _unitOfWork.ShoppingCartRepository
-                //    .GetAll(u => u.ApplicationUserId == cartFromDb.ApplicationUserId).Count() - 1);
+                HttpContext.Session.SetInt32(SD.SessionCart, _unitOfWork.ShoppingCartRepository.GetAll(u => u.ApplicationUserId == cartFromDb.ApplicationUserId).Count() - 1);
             }
             else
             {
@@ -98,8 +100,7 @@ namespace E_Commerce.Areas.Customer.Controllers
             var cartFromDb = _unitOfWork.ShoppingCartRepository.Get(u => u.Id == cartId);
             _unitOfWork.ShoppingCartRepository.Remove(cartFromDb);
 
-            //HttpContext.Session.SetInt32(SD.SessionCart, _unitOfWork.ShoppingCartRepository
-            //  .GetAll(u => u.ApplicationUserId == cartFromDb.ApplicationUserId).Count() - 1);
+            HttpContext.Session.SetInt32(SD.SessionCart, _unitOfWork.ShoppingCartRepository.GetAll(u => u.ApplicationUserId == cartFromDb.ApplicationUserId).Count() - 1);
 
             _unitOfWork.Save();
             return RedirectToAction(nameof(Index));
@@ -202,6 +203,8 @@ namespace E_Commerce.Areas.Customer.Controllers
             _unitOfWork.OrderHeaderRepository.UpdateStatus(id, SD.StatusApproved, SD.PaymentStatusApproved);
             _unitOfWork.OrderHeaderRepository.Update(orderFromDb);
             _unitOfWork.Save();
+
+            HttpContext.Session.Clear();
             return View(id);
         }
     }

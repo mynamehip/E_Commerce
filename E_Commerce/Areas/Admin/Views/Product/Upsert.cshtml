@@ -5,9 +5,8 @@
         <h2 class="border-bottom border-2 border-primary pb-2 mb-0">@(Model.Product.Id != 0 ? "Update" : "Create") Product</h2>
         <div asp-validation-summary="All"></div>
         <input asp-for="Product.Id" hidden />
-        <input asp-for="Product.ImageUrl" hidden />
         <div class="row">
-            <div class="col-9">
+            <div class="col-10">
                 <div class="row pt-1">
                     <label asp-for="Product.Title"></label>
                     <div>
@@ -74,31 +73,44 @@
                     <span asp-validation-for="Product.CategoryId" class="text-danger"></span>
                 </div>
                 <div class="row pt-3">
-                    <label asp-for="Product.ImageUrl"></label>
+                    <label asp-for="Product.ProductImages"></label>
                     <div>
-                        <input type="file" name="file" asp-for="Product.ImageUrl" class="form-control" />
+                        <input type="file" name="files" multiple class="form-control" />
+                    </div>
+                </div>
+                <div class="row pt-4">
+                    <div class="col-6 col-md-3">
+                        @if (Model.Product.Id != 0)
+                        {
+                            <button type="submit" class="btn btn-primary form-control">Update</button>
+                        }
+                        else
+                        {
+                            <button type="submit" class="btn btn-primary form-control">Create</button>
+                        }
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <a class="btn btn-outline-primary form-control" asp-controller="Product" asp-action="Index">Back</a>
                     </div>
                 </div>
             </div>
-            <div class="col-3">
-                <img src="/@Model.Product.ImageUrl" width="100%" style="border-radius: 5px; border: 1px solid black"/>
+            <div class="col-2">
+                @if (Model.Product.ProductImages != null)
+                {
+                    foreach (var image in Model.Product.ProductImages)
+                    {
+                        <div class="border p-1 m-2 text-center position-relative">
+                            <img src="@image.ImageUrl" width="100%"
+                                 style="border-radius:5px; border:1px solid #bbb9b9" />
+                            <a asp-action="DeleteImage" class="btn btn-danger position-absolute top-0 end-0" asp-route-imageId="@image.Id">
+                                <i class="bi bi-trash-fill fs-6"></i>
+                            </a>
+                        </div>
+                    }
+                }
             </div>
         </div>
-        <div class="row pt-4">
-            <div class="col-6 col-md-3">
-                @if(Model.Product.Id != 0)
-                {
-                    <button type="submit" class="btn btn-primary form-control">Update</button>
-                }
-                else
-                {
-                    <button type="submit" class="btn btn-primary form-control">Create</button>
-                }
-            </div>
-            <div class="col-6 col-md-3">
-                <a class="btn btn-outline-primary form-control" asp-controller="Product" asp-action="Index">Back</a>
-            </div>
-        </div>
+        
     </form>
 </div>
 
