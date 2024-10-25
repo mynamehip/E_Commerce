@@ -20,10 +20,11 @@ namespace E_Commerce.Areas.Customer.Controllers
             _unitOfWork = unitOfWork;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(int? id, int? pageNumber)
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var claimId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            int pageSize = 8;
             if (claimId == null)
             {
                 HttpContext.Session.SetInt32(SD.SessionCart, 0);
@@ -32,8 +33,21 @@ namespace E_Commerce.Areas.Customer.Controllers
             {
                 HttpContext.Session.SetInt32(SD.SessionCart, _unitOfWork.ShoppingCartRepository.GetAll(u => u.ApplicationUserId == claimId.Value).Count());
             }
-            IEnumerable<Product> products = _unitOfWork.ProductRepository.GetAll(includeProperties: "Category,ProductImages");
-            return View(products);
+            IEnumerable<Product> products;
+            IEnumerable<Category> categories = _unitOfWork.CategoryRepository.GetAll();
+            ViewData["Categories"] = null;
+            if (id != null)
+            {
+                products = _unitOfWork.ProductRepository.GetAll(includeProperties: "Category,ProductImages").Where(u => u.CategoryId == id);
+                ViewData["Category"] = categories.FirstOrDefault(u => u.Id == id).Name;
+            }
+            else
+            {
+                products = _unitOfWork.ProductRepository.GetAll(includeProperties: "Category,ProductImages");
+            }
+            ViewData["Categories"] = categories;
+            var paginatedList = Pagination<Product>.Create(products.AsQueryable(), pageNumber ?? 1, pageSize);
+            return View(paginatedList);
         }
 
         public IActionResult Detail(int productId)

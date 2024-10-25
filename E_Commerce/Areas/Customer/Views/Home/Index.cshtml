@@ -1,50 +1,98 @@
-﻿@model IEnumerable<Product>
+﻿@model Pagination<Product>
 
-<div class="row pb-3">
-    @foreach (var product in Model)
-    {
-        <div class="col-lg-3 col-sm-6">
-            <div class="row p-2">
-                <div class="card border-0 p-3 shadow border-top border-5 rounded">
-                    @if(product.ProductImages != null && product.ProductImages.Count() > 0)
-                    {
-                        <img src="@product.ProductImages.FirstOrDefault().ImageUrl" class="card-img-top rounded" style="height: 350px; object-fit: cover;" />
-                    }
-                    else
-                    {
-                        <img src="https://placehold.co/500x600/png" class="card-img-top rounded" style="height: 350px; object-fit: cover;" />
-                    }
-                    <div class="card-body pb-0">
-                        <div class="pl-1">
-                            <p class="card-title h5 text-dark opacity-75 text-uppercase text-center">@product.Title</p>
-                            <p class="card-title text-warning text-center">by <b>@product.Author</b></p>
-                        </div>
-                        <div class="pl-1">
-                            <p class="text-dark text-opacity-75 text-center mb-0">
-                                List Price:
-                                <span class="text-decoration-line-through">
-                                    @product.ListPrice.ToString("c")
-                                </span>
-                            </p>
-                        </div>
-                        <div class="pl-1">
-                            <p class="text-dark text-opacity-75 text-center">
-                                As low as:
-                                <span>
-                                    @product.Price100.ToString("c")
-                                </span>
-                            </p>
-                        </div>
-                        <div>
-                            <a asp-action="Detail"
-                               asp-route-productId="@product.Id"
-                               class="btn btn-primary bg-gradient border-0 form-control">
-                                Details
-                            </a>
+<div class="container shadow rounded py-2 mb-5">
+    @await Component.InvokeAsync("HomeCarousel")
+</div>
+<div class="container shadow">
+    <div class="dropdown">
+        <button class="btn btn-primary dropdown-toggle mt-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <span>@(ViewData["Category"] == null ? "Category" : ViewData["Category"])</span>
+        </button>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" asp-action="Index" asp-route-id="">All</a></li>
+            @foreach (var category in (IEnumerable<Category>)ViewData["Categories"])
+            {
+                <li><a class="dropdown-item" asp-action="Index" asp-route-id="@category.Id">@category.Name</a></li>
+            }
+        </ul>
+    </div>
+    <div class="row pb-3">
+        @foreach (var product in Model)
+        {
+            <div class="col-lg-3 col-sm-6">
+                <div class="row p-2">
+                    <div class="card border-0 p-3 shadow rounded">
+                        @if (product.ProductImages != null && product.ProductImages.Count() > 0)
+                        {
+                            <img src="@product.ProductImages.FirstOrDefault().ImageUrl" class="card-img-top rounded" style="height: 350px; object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <img src="https://placehold.co/500x600/png" class="card-img-top rounded" style="height: 350px; object-fit: cover;" />
+                        }
+                        <div class="card-body pb-0">
+                            <div class="pl-1">
+                                <p class="card-title h5 text-dark opacity-75 text-uppercase text-center overflow-hidden" style="height: 50px">@product.Title</p>
+                                <p class="card-title text-warning text-center">by <b>@product.Author</b></p>
+                            </div>
+                            <div class="pl-1">
+                                <p class="text-dark text-opacity-75 text-center mb-0">
+                                    List Price:
+                                    <span class="text-decoration-line-through">
+                                        @product.ListPrice.ToString("c")
+                                    </span>
+                                </p>
+                            </div>
+                            <div class="pl-1">
+                                <p class="text-dark text-opacity-75 text-center">
+                                    As low as:
+                                    <span>
+                                        @product.Price100.ToString("c")
+                                    </span>
+                                </p>
+                            </div>
+                            <div>
+                                <a asp-action="Detail"
+                                   asp-route-productId="@product.Id"
+                                   class="btn btn-primary bg-gradient border-0 form-control">
+                                    Details
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    }
+        }
+    </div>
+    <div class="row d-flex justify-content-end">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-end">
+                @if (Model.HasPreviousPage)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="?pageNumber=@(Model.PageIndex - 1)" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                }
+                @for (var i = Model.PageIndex - 2; i <= Model.PageIndex + 2; i++)
+                {
+                    if(i > 0 && i <= Model.TotalPages)
+                    {
+                        <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                            <a class="page-link" href="?pageNumber=@i">@i</a>
+                        </li>
+                    }
+                }
+                @if (Model.HasNextPage)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="?pageNumber=@(Model.PageIndex + 1)" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
 </div>

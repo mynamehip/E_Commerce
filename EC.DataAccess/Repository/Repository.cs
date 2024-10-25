@@ -31,7 +31,6 @@ namespace EC.DataAccess.Repository
             if (tracked)
             {
                 query = dbSet;
-
             }
             else
             {

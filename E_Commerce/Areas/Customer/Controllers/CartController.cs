@@ -2,6 +2,7 @@
 using EC.Models.Models;
 using EC.Models.ViewModels;
 using EC.Utility;
+using EC.Utility.VNPay;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -14,12 +15,15 @@ namespace E_Commerce.Areas.Customer.Controllers
     public class CartController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IVNPayService _vnPayService;
+
         //private readonly IEmailSender _emailSender;
         [BindProperty]
         public ShoppingCartVM ShoppingCartVM { get; set; }
-        public CartController(IUnitOfWork unitOfWork)
+        public CartController(IUnitOfWork unitOfWork, IVNPayService vnPayService)
         {
             _unitOfWork = unitOfWork;
+            _vnPayService = vnPayService;
         //    _emailSender = emailSender;
         }  
 
@@ -185,27 +189,45 @@ namespace E_Commerce.Areas.Customer.Controllers
 
 			if (applicationUser.CompanyId.GetValueOrDefault() == 0)
 			{
-                //it is a regular customer account and we need to capture payment
-
+                var vnPayModel = new VnPaymentRequestModel
+                {
+                    Amount = ShoppingCartVM.OrderHeader.OrderTotal * 1000,
+                    CreatedDate = DateTime.Now,
+                    Description = $"{ShoppingCartVM.OrderHeader.Name}_{ShoppingCartVM.OrderHeader.PhoneNumber}",
+                    Name = ShoppingCartVM.OrderHeader.Name,
+                    OrderId = ShoppingCartVM.OrderHeader.Id
+                };
+                return Redirect(_vnPayService.CreatePayment(HttpContext, vnPayModel));
             };
-            _unitOfWork.ShoppingCartRepository.RemoveRange(ShoppingCartVM.ShoppingCartList);
-
             return RedirectToAction(nameof(OrderConfirmation), new { id = ShoppingCartVM.OrderHeader.Id });
 		}
 
         public IActionResult OrderConfirmation(int id)
         {
-            var orderFromDb = _unitOfWork.OrderHeaderRepository.Get(u => u.Id == id, includeProperties: "ApplicationUser");
-            orderFromDb.SessionId = Guid.NewGuid().ToString();
-            orderFromDb.PaymentIntentId = Guid.NewGuid().ToString();
-            orderFromDb.PaymentDate = DateTime.Now;
+            var response = _vnPayService.PaymentExecute(Request.Query);
+            if (response == null || response.VnPayResponseCode != "00")
+            {
+                TempData["error"] = "There is some error! Please try later.";
+                return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                var orderFromDb = _unitOfWork.OrderHeaderRepository.Get(u => u.Id == id, includeProperties: "ApplicationUser", true);
+                orderFromDb.SessionId = Guid.NewGuid().ToString();
+                orderFromDb.PaymentIntentId = Guid.NewGuid().ToString();
+                orderFromDb.PaymentDate = DateTime.Now;
 
-            _unitOfWork.OrderHeaderRepository.UpdateStatus(id, SD.StatusApproved, SD.PaymentStatusApproved);
-            _unitOfWork.OrderHeaderRepository.Update(orderFromDb);
-            _unitOfWork.Save();
+                var userId = _unitOfWork.OrderHeaderRepository.Get(u => u.Id == id).ApplicationUserId;
+                var shoppingCartList = _unitOfWork.ShoppingCartRepository.GetAll(u => u.ApplicationUserId == userId, includeProperties: "Product");
+                _unitOfWork.ShoppingCartRepository.RemoveRange(shoppingCartList);
 
-            HttpContext.Session.Clear();
-            return View(id);
+                _unitOfWork.OrderHeaderRepository.UpdateStatus(id, SD.StatusApproved, SD.PaymentStatusApproved);
+                _unitOfWork.OrderHeaderRepository.Update(orderFromDb);
+                _unitOfWork.Save();
+
+                HttpContext.Session.Clear();
+                return View(id);
+            }
         }
     }
 }

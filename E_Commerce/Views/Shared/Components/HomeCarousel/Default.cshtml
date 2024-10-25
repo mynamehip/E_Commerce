@@ -1,0 +1,44 @@
+﻿@model IEnumerable<Product>
+
+<div>
+    <div id="carouselExampleIndicators" class="carousel slide">
+        <div class="carousel-indicators">
+            @foreach (var u in Model.Select((product, index) => new { Product = product, Index = index }))
+            {
+                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="@u.Index" class="@(u.Index == 0?"active":"")" aria-current="true" aria-label="Slide 1"></button>
+            }
+        </div>
+        <div class="carousel-inner">
+            @foreach (var u in Model.Select((product, index) => new { Product = product, Index = index }))
+            {
+                <div class="container @(u.Index==0?"carousel-item active":"carousel-item")">
+                    <div class=" row px-5">
+                        @if(u.Product.ProductImages.Count() > 0)
+                            {
+                            <div class=" col-md-4">
+                                <img src="@u.Product.ProductImages[0].ImageUrl" class="d-block w-100 col-4" style="height: 400px; object-fit: cover" alt="...">
+                            </div>
+                        }
+                        <div class=" @(u.Product.ProductImages.Count() > 0 ? "col-md-8" : "col") bg-secondary" style="padding: 20px 50px">
+                            <div>
+                                <h1>@u.Product.Title</h1>
+                            </div>
+                            <div class=" fs-4" style="color: #FFFACD !important;">ISBN: @u.Product.ISBN</div>
+                            <div class=" fs-5 text-white pb-3  text-light">@u.Product.Description</div>
+                            <div class=" fs-5 bg-danger text-bg-danger text-center py-2 rounded mb-3" style=" width: 200px">Price: @u.Product.Price.ToString("c")</div>
+                            <a class="btn btn-primary" asp-action="Detail" asp-route-productId="@u.Product.Id">More Detail</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+</div>

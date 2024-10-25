@@ -33,6 +33,7 @@ namespace EC.DataAccess.Repository
                 product.Author = obj.Author;
                 product.ISBN = obj.ISBN;
                 product.ProductImages = obj.ProductImages;
+                product.Highlight = obj.Highlight;
             }
         }
     }

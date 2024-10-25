@@ -38,5 +38,6 @@ namespace EC.Models.Models
         public Category Category { get; set; }
         [ValidateNever]
         public List<ProductImage> ProductImages { get; set; }
+        public bool Highlight {  get; set; }
     }
 }

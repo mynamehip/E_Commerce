@@ -1,4 +1,5 @@
 ﻿using EC.DataAccess.Repository.IRepository;
+using EC.Models.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace E_Commerce.ViewComponents
@@ -11,10 +12,10 @@ namespace E_Commerce.ViewComponents
             _unitOfWork = unitOfWork;
         }
 
-        public IViewComponentResult Index()
+        public async Task<IViewComponentResult> InvokeAsync()
         {
-
-            return View();
+            IEnumerable<Product> highLightList = _unitOfWork.ProductRepository.GetAll(u => u.Highlight == true, includeProperties: "Category,ProductImages").ToList();
+            return View(highLightList);
         }
     }
 }

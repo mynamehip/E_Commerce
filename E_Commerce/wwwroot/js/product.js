@@ -8,11 +8,20 @@ function loadDataTable() {
     dataTable = $('#tblData').DataTable({
         "ajax": { url: '/admin/product/getall'},
         "columns": [
-            { data: 'title', "width": "25%" },
+            { data: 'title', "width": "20%" },
             { data: 'isbn', "width": "20%" },
             { data: 'author', "width": "15%" },
             { data: 'category.name', "width": "10%" },
             { data: 'price', "width": "10%" },
+            {
+                data: { id: "id", highlight: "highlight" },
+                "render": function (data) {
+                    return `<div class="form-check d-flex justify-content-center">
+                                <input type="checkbox" class="form-check-input bg-dark" ${data.highlight ? "checked" : ""} onChange="ChangeHighlight(${data.id})" />
+                            </div>`
+                },
+                "width": "5%"
+            },
             {
                 data: 'id',
                 "render": function (data) {
@@ -52,4 +61,24 @@ function Delete(url) {
             })
         }
     });
+}
+
+function ChangeHighlight(id) {
+    $.ajax({
+        url: "/admin/product/ChangeHighlight",
+        type: 'POST',
+        data: {id: id},
+        success: function () {
+            dataTable.ajax.reload();
+            toastr.success("Highlight success!")
+        },
+        error: function () {
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "Something went wrong!",
+                footer: '<a href="#">Why do I have this issue?</a>'
+            });
+        }
+    })
 }

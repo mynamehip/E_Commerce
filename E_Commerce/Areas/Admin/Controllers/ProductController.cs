@@ -204,6 +204,20 @@ namespace E_Commerce.Areas.Admin.Controllers
 
             return Json(new { success = true, message = "Delete Successful" });
         }
+
+        [HttpPost]
+        public IActionResult ChangeHighlight(int id)
+        {
+            var product = _unitOfWork.ProductRepository.Get(u => u.Id == id);
+            if (product == null)
+            {
+                return Json(new { error = false });
+            }
+            product.Highlight = !product.Highlight;
+            _unitOfWork.ProductRepository.Update(product);
+            _unitOfWork.Save();
+            return Json(new { success = true });
+        }
         #endregion
     }
 }
