@@ -12,13 +12,16 @@ namespace EC.Utility.VNPay
     public class VNPayService : IVNPayService
     {
         private IConfiguration _config;
+        private IHttpContextAccessor _httpContextAccessor;
 
-        public VNPayService(IConfiguration config) 
+        public VNPayService(IConfiguration config, IHttpContextAccessor httpContextAccessor) 
         {
             _config = config;
+            _httpContextAccessor = httpContextAccessor;
         }
         public string CreatePayment(HttpContext context, VnPaymentRequestModel model)
         {
+            var request = _httpContextAccessor.HttpContext.Request;
             var tick = DateTime.Now.Ticks.ToString();
             var vnpay = new VnPayLibrary();
             vnpay.AddRequestData("vnp_Version", _config["VNPay:Version"]);
@@ -31,7 +34,7 @@ namespace EC.Utility.VNPay
             vnpay.AddRequestData("vnp_Locale", "vn");
             vnpay.AddRequestData("vnp_OrderInfo", "Thanh toan don hang:" + model.OrderId);
             vnpay.AddRequestData("vnp_OrderType", "other"); //default value: other
-            vnpay.AddRequestData("vnp_ReturnUrl", $"{_config["VNPay:ReturnUrl"]}?id={model.OrderId}");
+            vnpay.AddRequestData("vnp_ReturnUrl", $"{request.Scheme}://{request.Host.Value}/{_config["VNPay:ReturnUrl"]}?id={model.OrderId}");
             vnpay.AddRequestData("vnp_TxnRef", tick);
 
             var paymentUrl = vnpay.CreateRequestUrl(_config["VNPay:BaseUrl"], _config["VNPay:HashSecret"]);

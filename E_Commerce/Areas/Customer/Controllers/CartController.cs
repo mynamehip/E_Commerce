@@ -4,6 +4,7 @@ using EC.Models.ViewModels;
 using EC.Utility;
 using EC.Utility.VNPay;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -16,15 +17,16 @@ namespace E_Commerce.Areas.Customer.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IVNPayService _vnPayService;
+        private readonly IEmailSender _emailSender;
 
         //private readonly IEmailSender _emailSender;
         [BindProperty]
         public ShoppingCartVM ShoppingCartVM { get; set; }
-        public CartController(IUnitOfWork unitOfWork, IVNPayService vnPayService)
+        public CartController(IUnitOfWork unitOfWork, IVNPayService vnPayService, IEmailSender emailSender)
         {
             _unitOfWork = unitOfWork;
             _vnPayService = vnPayService;
-        //    _emailSender = emailSender;
+            _emailSender = emailSender;
         }  
 
         public IActionResult Index()
@@ -204,30 +206,36 @@ namespace E_Commerce.Areas.Customer.Controllers
 
         public IActionResult OrderConfirmation(int id)
         {
-            var response = _vnPayService.PaymentExecute(Request.Query);
-            if (response == null || response.VnPayResponseCode != "00")
+
+            OrderHeader orderHeader = _unitOfWork.OrderHeaderRepository.Get(u => u.Id == id, includeProperties: "ApplicationUser");
+            var userId = _unitOfWork.OrderHeaderRepository.Get(u => u.Id == id).ApplicationUserId;
+            var shoppingCartList = _unitOfWork.ShoppingCartRepository.GetAll(u => u.ApplicationUserId == userId, includeProperties: "Product");
+            if (orderHeader.PaymenStatus != SD.PaymentStatusDelayedPayment)
             {
-                TempData["error"] = "There is some error! Please try later.";
-                return RedirectToAction(nameof(Index));
+                var response = _vnPayService.PaymentExecute(Request.Query);
+                if (response == null || response.VnPayResponseCode != "00")
+                {
+                    TempData["error"] = "There is some error! Please try later.";
+                    _unitOfWork.ShoppingCartRepository.RemoveRange(shoppingCartList);
+                    _unitOfWork.Save();
+                    HttpContext.Session.Clear();
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    var orderFromDb = _unitOfWork.OrderHeaderRepository.Get(u => u.Id == id, includeProperties: "ApplicationUser", true);
+                    orderFromDb.SessionId = Guid.NewGuid().ToString();
+                    orderFromDb.PaymentIntentId = Guid.NewGuid().ToString();
+                    orderFromDb.PaymentDate = DateTime.Now;
+                    _unitOfWork.OrderHeaderRepository.UpdateStatus(id, SD.StatusApproved, SD.PaymentStatusApproved);
+                    _unitOfWork.OrderHeaderRepository.Update(orderFromDb);
+                    _emailSender.SendEmailAsync(_unitOfWork.ApplicationUserRepository.Get(u => u.Id == userId).Email, "Confirm", "You have successfully paid for your order " + id);
+                }
             }
-            else
-            {
-                var orderFromDb = _unitOfWork.OrderHeaderRepository.Get(u => u.Id == id, includeProperties: "ApplicationUser", true);
-                orderFromDb.SessionId = Guid.NewGuid().ToString();
-                orderFromDb.PaymentIntentId = Guid.NewGuid().ToString();
-                orderFromDb.PaymentDate = DateTime.Now;
-
-                var userId = _unitOfWork.OrderHeaderRepository.Get(u => u.Id == id).ApplicationUserId;
-                var shoppingCartList = _unitOfWork.ShoppingCartRepository.GetAll(u => u.ApplicationUserId == userId, includeProperties: "Product");
-                _unitOfWork.ShoppingCartRepository.RemoveRange(shoppingCartList);
-
-                _unitOfWork.OrderHeaderRepository.UpdateStatus(id, SD.StatusApproved, SD.PaymentStatusApproved);
-                _unitOfWork.OrderHeaderRepository.Update(orderFromDb);
-                _unitOfWork.Save();
-
-                HttpContext.Session.Clear();
-                return View(id);
-            }
+            _unitOfWork.ShoppingCartRepository.RemoveRange(shoppingCartList);
+            _unitOfWork.Save();
+            HttpContext.Session.Clear();
+            return View(id);
         }
     }
 }

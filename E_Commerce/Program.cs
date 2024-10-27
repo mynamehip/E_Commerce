@@ -3,10 +3,10 @@ using EC.DataAccess.Repository;
 using EC.DataAccess.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
-using EC.Utility;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using EC.DataAccess.DbInitialize;
 using EC.Utility.VNPay;
+using EC.Utility.Email;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,10 +39,13 @@ builder.Services.AddSession(options =>
 });
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 
 builder.Services.AddSingleton<IVNPayService, VNPayService>();
+
+builder.Services.AddTransient<IEmailSender, EmailSender>();
+
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 

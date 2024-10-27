@@ -1,0 +1,82 @@
+﻿@model Pagination<Product>
+
+@if(Model != null)
+{
+    @foreach (var product in Model)
+    {
+        <div class="col-lg-3 col-sm-6">
+            <div class="row p-2">
+                <div class="card border-0 p-3 shadow rounded">
+                    @if (product.ProductImages?.Any() == true)
+                    {
+                        <img src="@product.ProductImages.FirstOrDefault().ImageUrl" class="card-img-top rounded" style="height: 350px; object-fit: cover;" />
+                    }
+                    else
+                    {
+                        <img src="https://placehold.co/500x600/png" class="card-img-top rounded" style="height: 350px; object-fit: cover;" />
+                    }
+                    <div class="card-body pb-0">
+                        <div class="pl-1">
+                            <p class="card-title h5 text-dark opacity-75 text-uppercase text-center overflow-hidden" style="height: 50px">@product.Title</p>
+                            <p class="card-title text-warning text-center">by <b>@product.Author</b></p>
+                        </div>
+                        <div class="pl-1">
+                            <p class="text-dark text-opacity-75 text-center mb-0">
+                                List Price:
+                                <span class="text-decoration-line-through">
+                                    @product.ListPrice.ToString("c")
+                                </span>
+                            </p>
+                        </div>
+                        <div class="pl-1">
+                            <p class="text-dark text-opacity-75 text-center">
+                                As low as:
+                                <span>
+                                    @product.Price100.ToString("c")
+                                </span>
+                            </p>
+                        </div>
+                        <div>
+                            <a asp-action="Detail"
+                               asp-route-productId="@product.Id"
+                               class="btn btn-primary bg-gradient border-0 form-control">
+                                Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    <div class="pt-3 d-flex justify-content-end">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-end">
+                @if (Model.HasPreviousPage)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="javascript:void(0)" onclick="loadPage(@(Model.PageIndex - 1))" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                }
+                @for (var i = Model.PageIndex - 2; i <= Model.PageIndex + 2; i++)
+                {
+                    if (i > 0 && i <= Model.TotalPages)
+                    {
+                        <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                            <a class="page-link" href="javascript:void(0)" onclick="loadPage(@i)">@i</a>
+                        </li>
+                    }
+                }
+                @if (Model.HasNextPage)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="javascript:void(0)" onclick="loadPage(@(Model.PageIndex + 1))" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
+}

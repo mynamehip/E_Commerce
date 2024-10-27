@@ -1,7 +1,8 @@
-using EC.DataAccess.Repository.IRepository;
+﻿using EC.DataAccess.Repository.IRepository;
 using EC.Models.Models;
 using EC.Utility;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Security.Claims;
@@ -13,18 +14,19 @@ namespace E_Commerce.Areas.Customer.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IEmailSender _emailSender;
 
-        public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork)
+        public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork, IEmailSender emailSender)
         {
             _logger = logger;
             _unitOfWork = unitOfWork;
+            _emailSender = emailSender;
         }
 
-        public IActionResult Index(int? id, int? pageNumber)
+        public IActionResult Index()
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
-            var claimId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
-            int pageSize = 8;
+            var claimId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);;
             if (claimId == null)
             {
                 HttpContext.Session.SetInt32(SD.SessionCart, 0);
@@ -33,22 +35,46 @@ namespace E_Commerce.Areas.Customer.Controllers
             {
                 HttpContext.Session.SetInt32(SD.SessionCart, _unitOfWork.ShoppingCartRepository.GetAll(u => u.ApplicationUserId == claimId.Value).Count());
             }
-            IEnumerable<Product> products;
             IEnumerable<Category> categories = _unitOfWork.CategoryRepository.GetAll();
-            ViewData["Categories"] = null;
+            ViewData["Categories"] = categories;
+            return View();
+        }
+
+        public async Task<IActionResult> SendTestEmail()
+        {
+            try
+            {
+                await _emailSender.SendEmailAsync("hiphkiiio@gmail.com", "Test Subject", "Test Message");
+                ViewData["Message"] = "Email đã được gửi thành công!";
+            }
+            catch (Exception ex)
+            {
+                ViewData["Message"] = $"Gửi email thất bại: {ex.Message}";
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+
+        public IActionResult GetProducts(int? id, int? pageNumber)
+        {
+            int pageSize = 8;
+            IEnumerable<Product> products;
+
             if (id != null)
             {
-                products = _unitOfWork.ProductRepository.GetAll(includeProperties: "Category,ProductImages").Where(u => u.CategoryId == id);
-                ViewData["Category"] = categories.FirstOrDefault(u => u.Id == id).Name;
+                products = _unitOfWork.ProductRepository
+                            .GetAll(includeProperties: "Category,ProductImages")
+                            .Where(u => u.CategoryId == id);
             }
             else
             {
                 products = _unitOfWork.ProductRepository.GetAll(includeProperties: "Category,ProductImages");
             }
-            ViewData["Categories"] = categories;
+
             var paginatedList = Pagination<Product>.Create(products.AsQueryable(), pageNumber ?? 1, pageSize);
-            return View(paginatedList);
+            return PartialView("_ProductListPartial", paginatedList);
         }
+
 
         public IActionResult Detail(int productId)
         {
