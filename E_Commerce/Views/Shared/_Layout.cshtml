@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
     <link rel="stylesheet" href="//cdn.datatables.net/1.11.2/css/jquery.dataTables.min.css" />
 </head>
-<body>
+<body data-bs-theme="light">
     <header>
         <nav class="navbar navbar-expand-md navbar-toggleable-md navbar-light bg-primary border-bottom box-shadow mb-3">
             <div class="container-fluid">
@@ -76,8 +76,10 @@
             <partial name="_Notification" />
             @RenderBody()
         </main>
+        <div id="themeBtn" class="position-fixed bg-black rounded-circle text-white d-flex align-items-center justify-content-center z-1 pointer-event" style="width: 50px; height: 50px; right: 50px; bottom: 50px" onclick="ChangeTheme()">
+            DRK
+        </div>
     </div>
-
     <footer class="border-top footer text-muted bg-dark text-bg-dark">
         <div class="container text-center">
             To infinity and beyond <i class="bi bi-rocket-fill"></i>
@@ -90,5 +92,23 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        const ChangeTheme = () => {
+            var theme = document.body;
+            theme.dataset.bsTheme = theme.dataset.bsTheme == "light" ? "dark" : "light";
+            var btnText = document.getElementById("themeBtn");
+            btnText.innerText = btnText.innerText == "DRK" ? "LHT" : "DRK";
+            if (btnText.innerText == "LHT") {
+
+                btnText.classList.remove("bg-black", "text-white");
+                btnText.classList.add("bg-white", "text-black");
+            }
+            else{
+                btnText.classList.remove("bg-white", "text-black");
+                btnText.classList.add("bg-black", "text-white");
+            }
+        }
+    </script>
 </body>
 </html>

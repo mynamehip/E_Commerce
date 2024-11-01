@@ -55,7 +55,7 @@ namespace E_Commerce.Areas.Customer.Controllers
         }
 
 
-        public IActionResult GetProducts(int? id, int? pageNumber)
+        public IActionResult GetProducts(int? id, int? pageNumber, string? name)
         {
             int pageSize = 8;
             IEnumerable<Product> products;
@@ -69,6 +69,11 @@ namespace E_Commerce.Areas.Customer.Controllers
             else
             {
                 products = _unitOfWork.ProductRepository.GetAll(includeProperties: "Category,ProductImages");
+            }
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                products = products.Where(p => p.Title.Contains(name, StringComparison.OrdinalIgnoreCase));
             }
 
             var paginatedList = Pagination<Product>.Create(products.AsQueryable(), pageNumber ?? 1, pageSize);

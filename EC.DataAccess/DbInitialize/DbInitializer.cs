@@ -56,7 +56,7 @@ namespace EC.DataAccess.DbInitialize
                 _userManager.CreateAsync(new ApplicationUser
                 {
                     UserName = "admin@gmail.com",
-                    Email = "admin@gamil.com",
+                    Email = "admin@gmail.com",
                     Name = "Tran Hiep",
                     PhoneNumber = "0123456789",
                     StreetAddress = "test/",
@@ -67,7 +67,6 @@ namespace EC.DataAccess.DbInitialize
 
                 ApplicationUser user = _db.ApplicationUsers.FirstOrDefault(u => u.Email == "admin@gmail.com");
                 _userManager.AddToRoleAsync(user, SD.Role_User_Admin).GetAwaiter().GetResult();
-
             }
             return;
         }

@@ -15,11 +15,11 @@
                     <div class=" row px-5">
                         @if(u.Product.ProductImages.Count() > 0)
                             {
-                            <div class=" col-md-4">
+                            <div class=" col-lg-4 d-none d-lg-block">
                                 <img src="@u.Product.ProductImages[0].ImageUrl" class="d-block w-100 col-4" style="height: 400px; object-fit: cover" alt="...">
                             </div>
                         }
-                        <div class=" @(u.Product.ProductImages.Count() > 0 ? "col-md-8" : "col") bg-secondary" style="padding: 20px 50px">
+                        <div class=" @(u.Product.ProductImages.Count() > 0 ? "col-lg-8" : "col") bg-secondary" style="padding: 20px 50px">
                             <div>
                                 <h1>@u.Product.Title</h1>
                             </div>
