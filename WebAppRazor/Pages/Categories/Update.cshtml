@@ -1,0 +1,33 @@
+﻿@page
+@model WebAppRazor.Pages.Categories.UpdateModel
+
+<form method="post">
+    <h2 class="border-bottom border-2 border-primary pb-2 mb-3">Edit Category</h2>
+    <input asp-for="Categories.Id" hidden />
+    <div asp-validation-summary="All"></div>
+    <div class="row pt-3">
+        <label asp-for="Categories.Name"></label>
+        <input asp-for="Categories.Name" class="form-control" style="margin: 0px 12px" />
+        <span asp-validation-for="Categories.Name" class="text-danger"></span>
+    </div>
+    <div class="row pt-3">
+        <label asp-for="Categories.DisplayOrder"></label>
+        <input asp-for="Categories.DisplayOrder" class="form-control" style="margin: 0px 12px" />
+        <span asp-validation-for="Categories.DisplayOrder" class="text-danger"></span>
+    </div>
+    <div class="row pt-3">
+        <div class="col-6 col-md-3">
+            <button type="submit" class="btn btn-primary form-control">Update</button>
+        </div>
+        <div class="col-6 col-md-3">
+            <a class="btn btn-outline-primary form-control" asp-page="/Categories/Index">Back</a>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+}
+

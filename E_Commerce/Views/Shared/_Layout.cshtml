@@ -39,20 +39,20 @@
                                 </a>
                                 <ul class="dropdown-menu">
                                     <li>
-                                        <a class="dropdown-item text-dark" asp-area="Admin" asp-controller="Category" asp-action="Index">Category</a>
+                                        <a class="dropdown-item text-theme" asp-area="Admin" asp-controller="Category" asp-action="Index">Category</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item text-dark" asp-area="Admin" asp-controller="Product" asp-action="Index">Product</a>
+                                        <a class="dropdown-item text-theme" asp-area="Admin" asp-controller="Product" asp-action="Index">Product</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item text-dark" asp-area="Admin" asp-controller="Company" asp-action="Index">Company</a>
+                                        <a class="dropdown-item text-theme" asp-area="Admin" asp-controller="Company" asp-action="Index">Company</a>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
-                                        <a class="dropdown-item text-dark" asp-area="Identity" asp-page="/Account/Register">Create User</a>
+                                        <a class="dropdown-item text-theme" asp-area="Identity" asp-page="/Account/Register">Create User</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item text-dark" asp-area="Admin" asp-controller="User" asp-action="Index">User Manager</a>
+                                        <a class="dropdown-item text-theme" asp-area="Admin" asp-controller="User" asp-action="Index">User Manager</a>
                                     </li>
                                 </ul>
                             </li>
@@ -99,16 +99,34 @@
             theme.dataset.bsTheme = theme.dataset.bsTheme == "light" ? "dark" : "light";
             var btnText = document.getElementById("themeBtn");
             btnText.innerText = btnText.innerText == "DRK" ? "LHT" : "DRK";
-            if (btnText.innerText == "LHT") {
 
+            localStorage.setItem("theme", theme.dataset.bsTheme);
+
+            if (btnText.innerText == "LHT") {
                 btnText.classList.remove("bg-black", "text-white");
                 btnText.classList.add("bg-white", "text-black");
-            }
-            else{
+            } else {
                 btnText.classList.remove("bg-white", "text-black");
                 btnText.classList.add("bg-black", "text-white");
             }
         }
+
+        window.onload = () => {
+            var savedTheme = localStorage.getItem("theme");
+            if (savedTheme) {
+                document.body.dataset.bsTheme = savedTheme;
+                var btnText = document.getElementById("themeBtn");
+                if (savedTheme === "dark") {
+                    btnText.innerText = "LHT";
+                    btnText.classList.remove("bg-black", "text-white");
+                    btnText.classList.add("bg-white", "text-black");
+                } else {
+                    btnText.innerText = "DRK";
+                    btnText.classList.remove("bg-white", "text-black");
+                    btnText.classList.add("bg-black", "text-white");
+                }
+            }
+        };
     </script>
 </body>
 </html>

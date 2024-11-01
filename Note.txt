@@ -1,0 +1,72 @@
+﻿--unit of work
+
+
+--projection in ef code
+
+
+--Tag Helpers
+
+--[BindProperty]
+Được dùng để ràng buộc dữ liệu cho các thuộc tính trong Razor Pages
+    vd:[BindProperty]
+       public Product Product { get; set; }
+
+
+--@item.Price.ToString("c")
+Trong Razor hoặc C# được sử dụng để định dạng một giá trị kiểu số
+(decimal, double, float, v.v.) thành chuỗi đại diện cho tiền tệ (currency),
+dựa trên văn hóa (culture) của hệ thống hiện tại.
+//@item.Price.ToString("c", new System.Globalization.CultureInfo("vi-VN"))
+
+
+--System.Linq.Expressions.Expression<Func<T, bool>> filter
+Là một loại biểu thức trong C#, thường được sử dụng trong các 
+truy vấn LINQ và Entity Framework để đại diện cho các 
+điều kiện lọc (filter conditions) cho một tập hợp đối tượng. 
+Cụ thể, nó là một biểu thức lambda có kiểu dữ liệu trả về là bool và 
+đối số là một đối tượng kiểu T.
+
+
+--claim identity
+var claimsIdentity = (ClaimsIdentity)User.Identity;
+var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+
+--[NotMapped] => không thêm cột vào db
+
+
+--@DateTime.Now.AddDays(7).ToShortDateString()
+
+
+--var status = Context.Request.Query["status"];
+//Context.Request.Query:
+-Context là đối tượng đại diện cho HttpContext hiện tại trong ASP.NET. 
+Nó chứa thông tin về yêu cầu HTTP mà ứng dụng web nhận được.
+-Request là thuộc tính của HttpContext và đại diện cho yêu cầu HTTP hiện tại 
+(HTTP request). Nó chứa các thông tin như: URL, phương thức (GET, POST), 
+headers, body, v.v.
+-Query là một thuộc tính của HttpRequest, nó đại diện cho các tham số 
+trong chuỗi truy vấn (query string) của URL. Những tham số này thường 
+được thêm vào sau dấu ? trong URL và có dạng key=value.
+//["status"]:
+Đây là cách để truy xuất một giá trị từ chuỗi truy vấn thông qua 
+tên khóa (key). Trong trường hợp này, bạn đang truy xuất giá trị 
+của tham số status từ chuỗi truy vấn của yêu cầu HTTP.
+
+
+--session
+Là một kỹ thuật dùng để lưu trữ thông tin tạm thời về người dùng trong 
+một khoảng thời gian mà người dùng đang tương tác với ứng dụng. Mỗi 
+người dùng sẽ có một phiên làm việc (session) riêng biệt. Dữ liệu 
+trong session có thể được lưu trữ trong suốt thời gian người dùng 
+truy cập vào trang web và sẽ bị mất khi phiên làm việc hết hạn 
+hoặc người dùng đóng trình duyệt.
+
+
+--<button type="submit" onclick="return validateInput()"></button>
+Nếu hàm validateInput() trả về true, thì quá trình submit form (gửi dữ liệu) sẽ diễn ra bình thường.
+
+
+--Data initializer
+Khởi tạo dũ liệu cho database đúng cách
+Tạo file thêm dữ liệu rồi gọi trong program.cs
